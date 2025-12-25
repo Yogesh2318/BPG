@@ -16,9 +16,9 @@ const userSchema = new Schema({
         type:String,
         required:true,
     },
-    plant:{
-        type:Plant.schema,
-        default:[],
+    plants: {
+        type: [Plant.schema],
+        default: [],
     },
     timestamp:{
         type:Date,
@@ -32,6 +32,15 @@ const userSchema = new Schema({
         type:[String],
         default:[],
     },
+    maxstreak:{
+        type:Number,
+        default:0,
+    },
+    currentstreak:{
+        type:Number,
+        default:0,
+    },
+    
 });
 
 const User = mongoose.model('User',userSchema);

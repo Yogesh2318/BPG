@@ -39,28 +39,33 @@ if(newUser){
   }
  }
 
+export const login = async (req, res) => {
+  try {
+    const { username, password } = req.body;
 
-export const login = async (req,res)=>{
-      try {
-         const { username, password } = req.body;
-         const user = await User.findOne({ username });
-         if(user && user.length > 0){
-            const isPasswordMatch = await bcrypt.compare(password,user[0].password);
-            if(isPasswordMatch){
-               generateTokenAndSetCookie(user[0]._id,res);
-               res.status(200).json({
-                  _id: user[0]._id,
-                  fullName: user[0].fullName,
-                  username: user[0].username,
-               });
-            }else{
-               res.status(400).json({error:"Invalid password"});
-            }
-         }else{
-            res.status(400).json({error:"Invalid username"});
-         }
-      } catch (error) {
-         console.log("Error in login controller:", error.message);
-         res.status(500).json({ error: "Internal server error" });
-      }
-   }
+    const user = await User.findOne({ username });
+
+    // ✅ check only for user
+    if (!user) {
+      return res.status(400).json({ error: "Invalid username" });
+    }
+
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordMatch) {
+      return res.status(400).json({ error: "Invalid password" });
+    }
+
+    generateTokenAndSetCookie(user._id, res);
+
+    res.status(200).json({
+      _id: user._id,
+      fullName: user.fullName,
+      username: user.username,
+    });
+
+  } catch (error) {
+    console.log("Error in login controller:", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};

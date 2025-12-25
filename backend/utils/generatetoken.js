@@ -4,12 +4,12 @@ import dotenv from "dotenv";
 const generateTokenAndSetCookie = (userId, res) => {
     dotenv.config();
     const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
-        expiresIn: "15d",
+        expiresIn: "1d",
     });
 
     res.cookie("jwt", token, {
         httpOnly: true,
-        maxAge: 15 * 24 * 60 * 60 * 1000,
+        maxAge: 1 * 24 * 60 * 60 * 1000,
         sameSite: "strict",
     });
 };

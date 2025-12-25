@@ -1,18 +1,32 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import User from "../models/userModel.js";
+
 dotenv.config();
 
-const protectRoute = (req, res, next) => {
+const protectRoute = async (req, res, next) => {
+  try {
     const token = req.cookies.jwt;
+
     if (!token) {
-        return res.status(401).json({ error: "Not authorized, token missing" });
+      return res.status(401).json({ error: "Not authorized, token missing" });
     }
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.userId = decoded.userId;
-        next();
-    } catch (error) {
-        return res.status(401).json({ error: "Not authorized, token invalid" });
-    }   
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded.userId).select("-password");
+
+    if (!user) {
+      return res.status(401).json({ error: "User not found" });
+    }
+
+    // ✅ THIS FIXES EVERYTHING
+    req.user = user;
+
+    next();
+  } catch (error) {
+    return res.status(401).json({ error: "Not authorized, token invalid" });
+  }
 };
+
 export default protectRoute;
